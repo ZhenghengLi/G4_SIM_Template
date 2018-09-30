@@ -1,0 +1,23 @@
+/polar/GlobalConfig/set/hit_threshold 0.1 eV
+/polar/GlobalConfig/set/bar_threshold 100 eV
+
+#/polar/GlobalConfig/set/output_directory G4out
+
+/polar/GlobalConfig/set/polarisation_angle 54.321 deg
+/polar/GlobalConfig/set/incidence_theta 45.5 deg
+/polar/GlobalConfig/set/incidence_phi 30.123 deg
+
+/polar/GlobalConfig/set/event_verbose 1
+
+/polar/GlobalConfig/set/primary_only false
+/polar/GlobalConfig/set/birks_constant 0.143
+
+/polar/GlobalConfig/set/spacelab false
+/polar/GlobalConfig/set/antenna_angle_ud 45.0 deg
+/polar/GlobalConfig/set/antenna_angle_lr 10.0 deg
+
+/polar/GlobalConfig/set/phys_verbose 0
+/polar/GlobalConfig/set/phys_more false
+
+/polar/GlobalConfig/set/simout_more false
+

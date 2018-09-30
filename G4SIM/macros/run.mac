@@ -1,0 +1,3 @@
+/random/setSeeds 555 555
+/run/verbose 1
+/run/beamOn 10

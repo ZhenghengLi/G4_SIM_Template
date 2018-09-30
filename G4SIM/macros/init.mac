@@ -1,0 +1,7 @@
+# init macro file
+
+# Set some default verbose
+/control/verbose 2
+/control/saveHistory
+/run/verbose 2
+

@@ -1,0 +1,10 @@
+*.o
+*.so
+*.log
+*.pyc
+**/bin/**
+!**/bin/.*
+*_Dict.*
+*_Dict_rdict.pcm
+**/test/**
+**/build*/**

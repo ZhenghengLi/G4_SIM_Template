@@ -1,0 +1,202 @@
+#include "MyPhysicsList.hh"
+
+#include "G4ParticleDefinition.hh"
+#include "G4SystemOfUnits.hh"
+
+// particles
+#include "G4Gamma.hh"
+#include "G4Electron.hh"
+#include "G4Positron.hh"
+#include "G4MuonPlus.hh"
+#include "G4MuonMinus.hh"
+#include "G4PionPlus.hh"
+#include "G4PionMinus.hh"
+#include "G4KaonPlus.hh"
+#include "G4KaonMinus.hh"
+#include "G4Proton.hh"
+#include "G4AntiProton.hh"
+#include "G4Deuteron.hh"
+#include "G4Triton.hh"
+#include "G4He3.hh"
+#include "G4Alpha.hh"
+#include "G4GenericIon.hh"
+
+// *** Processes and models
+
+// gamma
+#include "G4PhotoElectricEffect.hh"
+#include "G4LivermorePolarizedPhotoElectricModel.hh"
+
+#include "G4ComptonScattering.hh"
+#include "G4LivermorePolarizedComptonModel.hh"
+#include "G4LowEPPolarizedComptonModel.hh"
+
+#include "G4GammaConversion.hh"
+#include "G4LivermorePolarizedGammaConversionModel.hh"
+
+#include "G4RayleighScattering.hh"
+#include "G4LivermorePolarizedRayleighModel.hh"
+
+// e+-
+#include "G4eMultipleScattering.hh"
+#include "G4UniversalFluctuation.hh"
+
+#include "G4eIonisation.hh"
+#include "G4LivermoreIonisationModel.hh"
+
+#include "G4eBremsstrahlung.hh"
+#include "G4LivermoreBremsstrahlungModel.hh"
+
+// e+
+#include "G4eplusAnnihilation.hh"
+
+// mu+-
+#include "G4MuMultipleScattering.hh"
+#include "G4MuIonisation.hh"
+#include "G4MuBremsstrahlung.hh"
+#include "G4MuPairProduction.hh"
+
+#include "G4MuBremsstrahlungModel.hh"
+#include "G4MuPairProductionModel.hh"
+#include "G4hBremsstrahlungModel.hh"
+#include "G4hPairProductionModel.hh"
+
+// hadrons
+#include "G4hMultipleScattering.hh"
+#include "G4MscStepLimitType.hh"
+
+#include "G4hBremsstrahlung.hh"
+#include "G4hPairProduction.hh"
+
+#include "G4hIonisation.hh"
+#include "G4ionIonisation.hh"
+#include "G4alphaIonisation.hh"
+#include "G4IonParametrisedLossModel.hh"
+#include "G4NuclearStopping.hh"
+
+// msc models
+#include "G4UrbanMscModel.hh"
+#include "G4WentzelVIModel.hh"
+#include "G4GoudsmitSaundersonMscModel.hh"
+#include "G4CoulombScattering.hh"
+#include "G4eCoulombScatteringModel.hh"
+
+#include "G4PhysicsListHelper.hh"
+
+
+MyPhysicsList::MyPhysicsList(G4int ver) {
+    verbose_ = ver;
+
+    // Default Cut Value  (1.0 mm is the Geant4 default)
+    defaultCutValue = 0.1*mm;
+
+}
+
+MyPhysicsList::~MyPhysicsList() {
+
+}
+
+void MyPhysicsList::ConstructParticle() {
+    // gamma
+    G4Gamma::Gamma();
+
+    // leptons
+    G4Electron::Electron();
+    G4Positron::Positron();
+    G4MuonPlus::MuonPlus();
+    G4MuonMinus::MuonMinus();
+
+    // mesons
+    G4PionPlus::PionPlusDefinition();
+    G4PionMinus::PionMinusDefinition();
+    G4KaonPlus::KaonPlusDefinition();
+    G4KaonMinus::KaonMinusDefinition();
+
+    // baryons
+    G4Proton::Proton();
+    G4AntiProton::AntiProton();
+
+    // ions
+    G4Deuteron::Deuteron();
+    G4Triton::Triton();
+    G4He3::He3();
+    G4Alpha::Alpha();
+    G4GenericIon::GenericIonDefinition();
+}
+
+void MyPhysicsList::ConstructProcess() {
+
+    AddTransportation();
+
+    // for 10.3
+    G4ParticleTable::G4PTblDicIterator* theParticleIterator = GetParticleIterator();
+
+    G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+
+    theParticleIterator->reset();
+    while( (*theParticleIterator)() ){
+
+        G4ParticleDefinition* particle = theParticleIterator->value();
+        G4String particleName = particle->GetParticleName();
+
+        if (particleName == "gamma") {
+            //gamma
+            G4ComptonScattering* theComptonScattering = new G4ComptonScattering();
+            G4LivermorePolarizedComptonModel* theLivermoreComptonModel = new G4LivermorePolarizedComptonModel();
+            // G4LowEPPolarizedComptonModel* theLivermoreComptonModel = new G4LowEPPolarizedComptonModel();
+            theComptonScattering->AddEmModel(0, theLivermoreComptonModel);
+            ph->RegisterProcess(theComptonScattering, particle);
+
+            G4PhotoElectricEffect* thePhotoElectricEffect = new G4PhotoElectricEffect();
+            G4LivermorePolarizedPhotoElectricModel* theLivermorePhotoElectricModel = new G4LivermorePolarizedPhotoElectricModel();
+            thePhotoElectricEffect->AddEmModel(0, theLivermorePhotoElectricModel);
+            ph->RegisterProcess(thePhotoElectricEffect, particle);
+
+            G4GammaConversion* theGammaConversion = new G4GammaConversion();
+            G4LivermorePolarizedGammaConversionModel* theLivermoreGammaConversion = new G4LivermorePolarizedGammaConversionModel();
+            theGammaConversion->AddEmModel(0,theLivermoreGammaConversion);
+            ph->RegisterProcess(theGammaConversion, particle);
+
+            G4RayleighScattering* theRayleigh = new G4RayleighScattering();
+            G4LivermorePolarizedRayleighModel* theLivermorePolarizedRayleighModel = new G4LivermorePolarizedRayleighModel();
+            theRayleigh->AddEmModel(0, theLivermorePolarizedRayleighModel);
+            ph->RegisterProcess(theRayleigh, particle);
+
+        } else if(particleName == "e-") {
+            //electron
+            ph->RegisterProcess(new G4eMultipleScattering, particle);
+            ph->RegisterProcess(new G4eIonisation,         particle);
+            ph->RegisterProcess(new G4eBremsstrahlung,     particle);
+
+        } else if(particleName == "e+") {
+            // positron
+            ph->RegisterProcess(new G4eMultipleScattering, particle);
+            ph->RegisterProcess(new G4eIonisation,         particle);
+            ph->RegisterProcess(new G4eBremsstrahlung,     particle);
+            ph->RegisterProcess(new G4eplusAnnihilation,   particle);
+
+        } else if(particleName == "mu+"|| "mu-") {
+            ph->RegisterProcess(new G4MuMultipleScattering, particle);
+            ph->RegisterProcess(new G4MuIonisation,         particle);
+            ph->RegisterProcess(new G4MuBremsstrahlung,     particle);
+            ph->RegisterProcess(new G4MuPairProduction,     particle);
+
+        } else if(particleName == "proton" || particleName == "pi+"|| particleName =="pi-") {
+            ph->RegisterProcess(new G4hMultipleScattering, particle);
+            ph->RegisterProcess(new G4hIonisation,         particle);
+            ph->RegisterProcess(new G4hBremsstrahlung,     particle);
+            ph->RegisterProcess(new G4hPairProduction,     particle);
+
+        }
+    }
+
+}
+
+void MyPhysicsList::SetCuts() {
+
+    SetCutsWithDefault();
+    //Set proton cut value to 0 for producing low energy recoil nucleus
+    SetCutValue(0, "proton");
+
+}
+
